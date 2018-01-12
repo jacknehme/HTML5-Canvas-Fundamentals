@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <script>
+        window.onload = function() {
+            var canvas = document.getElementById('myCanvas');
+            var ctx = canvas.getContext('2d');
+
+            var scores = [100, 90, 85, 45, 72, 88];
+            scores.reverse();
+            var width = 50;
+            var currX = 0;
+
+            ctx.translate(375, 200);
+            ctx.rotate(1 * Math.PI);
+
+            ctx.fillStyle = 'green';
+            for (let i = 0; i < scores.length; i++) {
+                ctx.fillRect(currX, 0, width, scores[i]);
+                currX += width + 10;
+
+            }
+        };
+    </script>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="600" height="400" />
+</body>
+
+</html>
