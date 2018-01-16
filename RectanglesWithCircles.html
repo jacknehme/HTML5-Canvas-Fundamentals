@@ -17,28 +17,29 @@
             var currX = 50;
             var base = 200;
 
-            ctx.fillStyle = 'green';
             for (let i = 0; i < scores.length; i++) {
                 var h = scores[i];
-                ctx.fillRect(currX, canvas.height - h, width, h);
+                var y = canvas.height - h;
+                ctx.fillStyle = 'green';
+                ctx.fillRect(currX, y, width, h);
+
+                ctx.fillStyle = 'navy';
+                ctx.beginPath();
+                ctx.arc(currX + width / 2, y, 15, 0, 2 * Math.PI, false);
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
                 currX += width + 10;
 
             }
-
-
-            ctx.fillStyle = 'red';
-            ctx.strokeStyle = 'white';
-            ctx.arc(100, 100, 30, 0, 2 * Math.PI);
-            ctx.fill()
-            ctx.stroke();
-
-
         };
     </script>
 </head>
 
 <body>
-    <canvas id="myCanvas" width="600" height="400" />
+    <canvas id="myCanvas" width="400" height="200" />
 </body>
 
 </html>
