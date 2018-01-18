@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <script>
+        window.onload = function() {
+            var canvas = document.getElementById('myCanvas');
+            var ctx = canvas.getContext('2d');
+
+            var scores = [100, 90, 85, 45, 72, 88];
+            scores.reverse();
+            var width = 50;
+            var currX = 50;
+            var base = 200;
+            var startX = 0;
+            var startY = 0;
+
+            for (let i = 0; i < scores.length; i++) {
+                var x = currX;
+                var y = canvas.height - scores[i];
+
+                if (startX == 0) {
+                    startX = x;
+                }
+                if (startY == 0) {
+                    startY = y;
+                }
+
+                // line
+                ctx.beginPath();
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 1;
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.closePath();
+
+                startX = currX + 10;
+                startY = y
+
+                // arc
+                ctx.beginPath();
+                ctx.fillStyle = 'navy';
+                ctx.arc(x, y, 10, 0, 2 * Math.PI, false);
+                ctx.fill();
+                ctx.closePath()
+
+                currX += width + 10;
+
+            }
+        };
+    </script>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="400" height="200" />
+</body>
+
+</html>

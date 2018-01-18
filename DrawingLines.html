@@ -11,7 +11,26 @@
             var canvas = document.getElementById('myCanvas');
             var ctx = canvas.getContext('2d');
 
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 10;
+            ctx.beginPath();
 
+            ctx.moveTo(150, 20);
+            ctx.lineTo(75, 200);
+            ctx.lineTo(225, 200);
+            ctx.lineTo(150, 20);
+
+            /* controls how line joins show */
+            // ctx.lineJoin = 'miter';
+            // ctx.miterLimit = 1;
+
+            //ctx.lineCap = 'round';  // values: round, square, butt
+            ctx.closePath();
+
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+
+            ctx.stroke();
         };
     </script>
 </head>
