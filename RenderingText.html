@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <script>
+        window.onload = function() {
+            var canvas = document.getElementById('myCanvas');
+            var ctx = canvas.getContext('2d');
+
+            /*
+            ctx.strokeStyle = 'navy';
+            ctx.fillStyle = 'yellow';
+            var text = 'Hello World';
+            ctx.font = '40pt Arial';
+            ctx.fillText(text, 50, 50);
+            ctx.strokeText(text, 50, 50); // do stroke after the fill to better see the stroke
+            */
+
+            var fontSize = 10;
+
+            for (var i = 5; i <= 25; i += 5) {
+                var text = 'Canvas Text! ' + fontSize;
+                ctx.font = fontSize + 'px Arial';
+                var y = ctx.measureText(text).width;
+                ctx.fillText(text, 10, y);
+                fontSize += 5;
+            }
+
+        };
+    </script>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="600" height="600" />
+</body>
+
+</html>

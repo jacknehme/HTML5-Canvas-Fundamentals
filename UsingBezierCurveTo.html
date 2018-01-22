@@ -11,31 +11,21 @@
             var ctx = canvas.getContext('2d');
 
             ctx.strokeStyle = 'red';
-            ctx.lineWidth = 10;
+            ctx.lineWidth = 2;
+
             ctx.beginPath();
+            ctx.moveTo(50, 50);
 
-            ctx.moveTo(150, 20);
-            ctx.lineTo(75, 200);
-            ctx.lineTo(225, 200);
-            ctx.lineTo(150, 20);
-
-            /* controls how line joins show */
-            // ctx.lineJoin = 'miter';
-            // ctx.miterLimit = 1;
-
-            //ctx.lineCap = 'round';  // values: round, square, butt
-            ctx.closePath();
-
-            ctx.fillStyle = 'yellow';
+            ctx.bezierCurveTo(300, 400, 400, 400, 400, 50);
+            ctx.lineTo(50, 50);
             ctx.fill();
-
             ctx.stroke();
         };
     </script>
 </head>
 
 <body>
-    <canvas id="myCanvas" width="400" height="400" />
+    <canvas id="myCanvas" width="600" height="600" />
 </body>
 
 </html>
