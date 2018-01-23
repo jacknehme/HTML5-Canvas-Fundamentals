@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <script>
+        var timerID;
+        window.onload = function() {
+            var canvas = document.getElementById('myCanvas');
+            var ctx = canvas.getContext('2d');
+
+            var video = document.getElementById('video');
+
+            video.addEventListener('play', function() {
+                video.currentTime = 10.0;
+                timerId = window.setInterval(function() {
+                    ctx.drawImage(video, 5, 5, 270, 125);
+                }, 30);
+            });
+
+            video.addEventListener('pause', function() {
+                stopTimer();
+            });
+
+            video.addEventListener('ended', function() {
+                stopTimer();
+            });
+        };
+
+        function stopTimer() {
+            window.clearInterval(timerId);
+        }
+    </script>
+</head>
+
+<body>
+    Video:
+    <br/>
+    <video id="video" controls="true" width="270" height="200" autoplay="true">
+        <source src="http://www.html5videoplayer.net/videos/toystory.mp4"
+                type="video/mp4"/>
+    </video>
+    <br/> Canvas:
+    <br/>
+    <canvas id="myCanvas" width="600" height="600" />
+</body>
+
+</html>
