@@ -1,7 +1,7 @@
 var CanvasChart = function () {
 
     var ctx;
-    var margin = { top: 40, left: 50, right: 0, bottom: 75 };
+    var margin = { top: 40, left: 75, right: 0, bottom: 75 };
     var chartHeight;
     var chartWidth;
     var yMax;
@@ -55,7 +55,25 @@ var CanvasChart = function () {
     };
 
     function renderText() {
+        var labelFont = (data.labelFont != null)?data.labelFont : '20pt Arial';
+        ctx.font = labelFont;
+        ctx.textAlign = 'center';
 
+        // Title
+        ctx.fillText(data.title, (chartWidth / 2), margin.top/2);
+
+        // X-axis text
+        var txtSize = ctx.measureText(data.xLabel);
+        ctx.fillText( data.xLabel,
+                      margin.left + (xMax / 2) - (txtSize.width / 2),
+                      yMax + (margin.bottom / 1.2));
+
+        // Y-axis text
+        ctx.save();
+        ctx.rotate(-Math.PI /2);
+        ctx.font = labelFont;
+        ctx.fillText(data.yLabel, (yMax / 2) * -1, margin.left / 4);
+        ctx.restore();
     };
 
     function getMaxDataYValue() {
