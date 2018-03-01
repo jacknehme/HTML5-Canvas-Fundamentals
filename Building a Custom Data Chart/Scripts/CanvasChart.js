@@ -41,6 +41,8 @@ var CanvasChart = function () {
     function renderParts() {
         renderBackground();
         renderText();
+        renderLinesAndLabels(true);
+        renderData();
     };
 
     function renderBackground() {
@@ -55,25 +57,102 @@ var CanvasChart = function () {
     };
 
     function renderText() {
-        var labelFont = (data.labelFont != null)?data.labelFont : '20pt Arial';
+        var labelFont = (data.labelFont != null) ? data.labelFont : '20pt Arial';
         ctx.font = labelFont;
         ctx.textAlign = 'center';
 
         // Title
-        ctx.fillText(data.title, (chartWidth / 2), margin.top/2);
+        ctx.fillText(data.title, (chartWidth / 2), margin.top / 2);
 
         // X-axis text
         var txtSize = ctx.measureText(data.xLabel);
-        ctx.fillText( data.xLabel,
-                      margin.left + (xMax / 2) - (txtSize.width / 2),
-                      yMax + (margin.bottom / 1.2));
+        ctx.fillText(data.xLabel,
+            margin.left + (xMax / 2) - (txtSize.width / 2),
+            yMax + (margin.bottom / 1.2));
 
         // Y-axis text
         ctx.save();
-        ctx.rotate(-Math.PI /2);
+        ctx.rotate(-Math.PI / 2);
         ctx.font = labelFont;
         ctx.fillText(data.yLabel, (yMax / 2) * -1, margin.left / 4);
         ctx.restore();
+    };
+
+    function renderLinesAndLabels(shouldRenderText) {
+        var yInc = yMax / data.dataPoints.length;
+        var yPos = 0;
+        var xInc = getXInc();
+        var xPos = margin.left;
+
+        for (var i = 0; i < data.dataPoints.length; i++) {
+            yPos += (i == 0) ? margin.top : yInc;
+            // Draw Horizontal lines
+            drawLine({ x: margin.left, y: yPos, x2: xMax, y2: yPos }, '#E8E8E8');
+
+            if (shouldRenderText) {
+                // y axis labels
+                ctx.font = (data.dataPointFont != null) ? data.dataPointFont : '10pt Calibri';
+                var txt = Math.round(maxYValue - ((i == 0) ? 0 : yPos / ratio));
+                var txtSize = ctx.measureText(txt);
+                ctx.fillText(txt, margin.left - ((txtSize.width >= 14) ? txtSize.width : 10) - 7, yPos + 4);
+
+                // x axis labels
+                txt = data.dataPoints[i].x;
+                txtSize = ctx.measureText(txt);
+                ctx.fillText(txt, xPos, yMax + (margin.bottom / 3));
+                xPos += xInc;
+            }
+        }
+        // Vertical line
+        drawLine({ x: margin.left, y: margin.top, x2: margin.left, y2: yMax });
+
+        // Horizontal line
+        drawLine({ x: margin.left, y: yMax, x2: xMax, y2: yMax });
+    };
+
+    function renderData() {
+        var xInc = getXInc();
+        var prevX = 0;
+        var prevY = 0;
+
+        for (var i = 0; i < data.dataPoints.length; i++) {
+            var pt = data.dataPoints[i];
+            var y = (maxYValue - pt.y) * ratio;
+            if (y < margin.top) {
+                y = margin.top;
+            }
+            var x = (i * xInc) + margin.left;
+
+            // Calculate dataPoint details
+            var dataPoint = { x: x, y: y, currX: margin.left, x2: prevX, y2: prevY, originalY: pt.y };
+            finalDataPoints.push(dataPoint);
+
+            prevX = x;
+            prevY = y;
+        }
+
+        if(data.renderTypes.indexOf(renderType.lines) > -1){
+            drawLines();
+        }
+    };
+
+    function drawLines() {
+        for (var i = 0; i < finalDataPoints.length; i++) {
+            var pt = finalDataPoints[i];
+            if(pt.x2 > 0){
+                drawLine(pt);
+            }
+        }
+    };
+
+    function drawLine(pt, strokeStyle) {
+        ctx.strokeStyle = (strokeStyle == null) ? 'black' : strokeStyle;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pt.x2, pt.y2);
+        ctx.lineTo(pt.x, pt.y);
+        ctx.stroke();
+        ctx.closePath();
     };
 
     function getMaxDataYValue() {
@@ -87,6 +166,10 @@ var CanvasChart = function () {
             }
         }
         return maxY;
+    };
+
+    function getXInc() {
+        return Math.round(xMax / data.dataPoints.length) - 1;
     };
 
     function createOverlay() {
