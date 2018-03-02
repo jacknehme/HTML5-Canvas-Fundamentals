@@ -134,6 +134,9 @@ var CanvasChart = function () {
         if(data.renderTypes.indexOf(renderType.lines) > -1){
             drawLines();
         }
+        if(data.renderTypes.indexOf(renderType.points) > -1){
+            drawPoints();
+        }
     };
 
     function drawLines() {
@@ -143,6 +146,56 @@ var CanvasChart = function () {
                 drawLine(pt);
             }
         }
+    };
+    function drawPoints(){
+        if(data.animatePoints){
+            animate();
+        } else {
+            for(var i = 0; i < finalDataPoints.length; i++){
+                var pt = finalDataPoints[i];
+                renderCircle(pt.x, pt.y);
+            }
+        }
+    };
+
+    function animate(){
+        var speed = data.animationSpeed || 20;
+        timerID = requestAnimationFrame(animate);
+        clear();
+        drawLines();
+        for(var i = 0; i < finalDataPoints.length; i++){
+            var pt = finalDataPoints[i];
+            pt.currX += speed; // Animating x position to increment it here
+            if(pt.currX >= pt.x){
+                pt.currX = pt.x;
+            }
+            renderCircle(pt.currX,pt.y);
+            if(i == finalDataPoints.length - 1 && pt.currX ==pt.x){
+                cancelAnimationFrame(timerID);
+            }
+        }
+    };
+
+    function clear(){
+        ctx.clearRect(margin.left - pointRadius - 2, margin.top - pointRadius - 2, xMax, yMax - margin.bottom / 3);
+        renderBackground();
+        renderLinesAndLabels(false);
+    };
+
+    function renderCircle(x, y, highlightColor){
+        var radgrad = ctx.createRadialGradient(x, y, pointRadius, x - 5, y - 5, 0);
+        highlightColor = highlightColor || 'Green';
+        radgrad.addColorStop(0, highlightColor);
+        radgrad.addColorStop(0.9, 'White');
+        ctx.beginPath();
+        ctx.fillStyle = radgrad;
+        // Render circle
+        ctx.arc(x, y, pointRadius, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+        ctx.closePath();
     };
 
     function drawLine(pt, strokeStyle) {
@@ -173,11 +226,67 @@ var CanvasChart = function () {
     };
 
     function createOverlay() {
-
+        // create overlay div for displaying data
+        overlayDiv = document.createElement('div');
+        overlayDiv.style.display = 'none';
+        overlayDiv.style.background = '#efefef';
+        overlayDiv.style.border = '1px solid black';
+        overlayDiv.style.position = 'absolute';
+        overlayDiv.style.padding = '5px';
+        document.body.appendChild(overlayDiv);
     };
 
-    function mouseMove() {
+    function showOverlay(pt){
+        overlayDiv.innerHTML = pt.originalY;
+        overlayDiv.style.left = pt.x + 'px';
+        overlayDiv.style.top = pt.y + 'px';
+        overlayDiv.style.display = 'block';
+    };
 
+    function clearCircle(x, y){
+        // clear out with white to avoid duplicated borders (which don't look good)
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.arc(x, y, pointRadius + 1, 0, 2 *Math.PI , false);
+        ctx.fill();
+        ctx.closePath();
+    };
+
+    function mouseMove(ev) {
+        var x;
+        var y;
+        // Get the mouse position relative to cnavas
+        if(ev.offsetX || ev.offsetX == 0){
+            x = ev.offsetX;
+            y = ev.offsetY;
+        } else if (ev.layerX || ev.layer == 0 ){ // Firefox
+            x = ev.layerX - margin.left + (pointRadius * 2) + 5;
+            y = ev.layerY - margin.top - 5;
+        }
+
+        if((x > margin.left) && (y > margin.top)){
+            var radius = pointRadius + 4;
+            for(var i = 0; i < finalDataPoints.length; i++){
+                var pt = finalDataPoints[i];
+                var xMin = pt.x - radius;
+                var xMax = pt.x + radius;
+                var yMin = pt.y - radius;
+                var yMax = pt.y + radius;
+                if((x >= xMin && x <= xMax) && (y >= yMin && y <= yMax)){
+                    clearCircle(pt.x, pt.y);
+                    renderCircle(pt.x, pt.y, 'red');
+                    selectedDataPoint = pt;
+                    showOverlay(pt);
+                    // document.getElementById('output').innerHTML += '<br/>' + x + " " + y;
+                    break;
+                } else if(selectedDataPoint != null){
+                        overlayDiv.style.display = 'none';
+                        clearCircle(selectedDataPoint.x, selectedDataPoint.y);
+                        renderCircle(selectedDataPoint.x, selectedDataPoint.y);
+                        selectedDataPoint = null;
+                }
+            }
+        }
     };
 
     // public member
@@ -188,3 +297,30 @@ var CanvasChart = function () {
 
 };
 /* }(); // <- invoking the function would create a singleton. One CanvasChart per page. */
+
+// A robust polyfill
+// https://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms','o','webkit', 'moz'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame =
+          window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
